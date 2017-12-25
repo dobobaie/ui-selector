@@ -1,0 +1,19 @@
+{
+  "name": "ui-selector",
+  "version": "0.0.1",
+  "description": "Select elements on your page with your mouse, click and keys event",
+  "main": "uiSelector.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dobobaie/ui-selector.git"
+  },
+  "author": "Dobobaie",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dobobaie/ui-selector/issues"
+  },
+  "homepage": "https://github.com/dobobaie/ui-selector#readme"
+}
