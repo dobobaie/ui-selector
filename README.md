@@ -14,6 +14,8 @@ npm install --save ui-selector
 * [Without keys](https://htmlpreview.github.io/?https://raw.githubusercontent.com/dobobaie/ui-selector/master/examples/disable-keys.html)
 * [With list](https://htmlpreview.github.io/?https://raw.githubusercontent.com/dobobaie/ui-selector/master/examples/list-elements.html)
 
+![demo](https://htmlpreview.github.io/?https://raw.githubusercontent.com/dobobaie/ui-selector/master/examples/demo.gif)
+
 ## Usage
 Add `ui-element` as class or attribute on your items and call `uiSelector` function.
 
@@ -33,7 +35,7 @@ Add `ui-element` as class or attribute on your items and call `uiSelector` funct
 	</head>
 	<body>
 		
-		<div>
+		<div id="square">
 			<div class="ui-element"></div>
 			<div class="ui-element"></div>
 			<div class="ui-element"></div>
