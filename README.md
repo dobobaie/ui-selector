@@ -64,3 +64,6 @@ Add `ui-element` as class or attribute on your items and call `uiSelector` funct
 </html>
 
 ``` 
+
+## Works
+Use our mouse to select items ! You can use click event to select an item or CTRL and SHIFT keys to add items.
