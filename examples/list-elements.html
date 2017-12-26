@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+	<html>
+	<head>
+		<title></title>
+		<style>
+			html, body
+			{
+				padding: 0;
+				height: 100%;
+			}
+			li.ui-element, li[ui-element]
+			{
+				background: #DDD;
+				border: 1px solid #AAA;
+				margin: 10px 0;
+			}
+		</style>
+		<link rel="stylesheet" type="text/css" href="../dist/uiSelector.css">
+	</head>
+	<body>
+		
+		<ul id="square">
+			<li ui-element>Test 1</li>
+			<li ui-element>Test 2</li>
+			<li ui-element>Test 3</li>
+			<li ui-element>Test 4</li>
+			<li ui-element>Test 5</li>
+			<li ui-element>Test 6</li>
+		</ul>
+
+		<script type="text/javascript" src="../dist/uiSelector.js"></script>
+		<script>
+			uiSelector().on('selected', (target) => {
+				console.log('selected', target);
+			}).on('deselect', (target) => {
+				console.log('deselect', target);
+			});
+		</script>
+	</body>
+</html>
