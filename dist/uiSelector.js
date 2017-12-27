@@ -70,10 +70,12 @@ var uiSelector = function(options)
 		
 		var $mouseMove = function(e)
 		{
-			if (_engine.mouseDown == true) {
+			_engine.mouseMoveTry += 1;
+			if (_engine.mouseDown == true && _engine.mouseMoveTry == 1) {
 				return ;
 			}
 
+			_engine.mouseMoveTry = 0;
 			_engine.pos.y.x = e.clientX;
 			_engine.pos.y.y = e.clientY;
 			_engine.this.calculPosition();
@@ -239,6 +241,7 @@ var uiSelector = function(options)
 			elements: [],
 			lastTarget: null,
 			mouseDown: false,
+			mouseMoveTry: 0,
 			keys: {
 				ctrl: false,
 				shift: false,
