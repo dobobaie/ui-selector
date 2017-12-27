@@ -1,6 +1,6 @@
 {
   "name": "ui-selector",
-  "version": "0.0.1",
+  "version": "0.0.5",
   "description": "Select items on your page with your mouse, click and keys event",
   "main": "uiSelector.min.js",
   "scripts": {

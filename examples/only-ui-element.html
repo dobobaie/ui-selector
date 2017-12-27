@@ -42,17 +42,9 @@
 
 		<script type="text/javascript" src="../dist/uiSelector.js"></script>
 		<script>
-			// uiSelector() // create instance in body
-			// uiSelector('#square') // create instance in #square element 
-			// uiSelector(document.getElementById('square')) // create instance in #square element 
-			// uiSelector({el: document.getElementById('square')}) // create instance in #square element 
 			uiSelector({
-				el: '#square',
-				keys: { // optional
-					ctrl: true, // default true
-					shift: true, // default true
-				},
-				onlyElement: false, // only ui-element can be select
+				el: document.getElementById('square'),
+				onlyElement: true,
 			}).on('selected', (target) => {
 				console.log('selected', target);
 			}).on('deselect', (target) => {

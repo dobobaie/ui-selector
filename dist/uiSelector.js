@@ -55,6 +55,7 @@ var uiSelector = function(options)
 			if (_engine.mouseDown == true) {
 				return ;
 			}
+
 			_engine.mouseDown = true;
 			if (_engine.keys.shift == false && _engine.keys.ctrl == false) {
 				_engine.pos.x.x = e.clientX;
@@ -63,12 +64,16 @@ var uiSelector = function(options)
 				_engine.el.removeAttribute('hidden');
 			}
 			_engine.this.getElements();
-			_engine.this.eventClick(e.target);
+			_engine.this.eventClick(e);
 			return true;
 		}
 		
 		var $mouseMove = function(e)
 		{
+			if (_engine.mouseDown == true) {
+				return ;
+			}
+
 			_engine.pos.y.x = e.clientX;
 			_engine.pos.y.y = e.clientY;
 			_engine.this.calculPosition();
@@ -141,8 +146,22 @@ var uiSelector = function(options)
 			}
 		}
 
-		this.eventClick = function(target)
+		this.eventClick = function(e)
 		{
+			var target = null;
+			for (var i = 0; e.path[i] != undefined; i++) {
+				if (i == 1 && typeof(options) == 'object' && options.onlyElement === true) {
+					break ;
+				}
+				if (e.path[i].className == undefined) {
+					continue ;
+				}
+				if (e.path[i].className.indexOf('ui-element') != -1 || e.path[i].getAttribute('ui-element') != null) {
+					target = e.path[i];
+					break ;
+				}
+			}
+
 			if (_engine.keys.ctrl == false && _engine.keys.shift == false) {
 				for (var index in _engine.elements) {
 					if (_engine.elements[index].className.indexOf('ui-selected') != -1) {
@@ -152,19 +171,21 @@ var uiSelector = function(options)
 				}
 			}
 
-			if (target.className.indexOf('ui-element') != -1 || target.getAttribute('ui-element') != null) {
-				if (target.className.indexOf('ui-selected') != -1) {
-					target.classList.remove('ui-selected');
-					$execCallback('deselect', target);
-				} else {
-					target.classList.add('ui-selected');
-					$execCallback('selected', target);
-				}
-				if (_engine.keys.shift == true) {
-					$shiftSelector(target);
-				}
-				_engine.lastTarget = target;
+			if (target == null) {
+				return ;
 			}
+
+			if (target.className.indexOf('ui-selected') != -1) {
+				target.classList.remove('ui-selected');
+				$execCallback('deselect', target);
+			} else {
+				target.classList.add('ui-selected');
+				$execCallback('selected', target);
+			}
+			if (_engine.keys.shift == true) {
+				$shiftSelector(target);
+			}
+			_engine.lastTarget = target;
 		}
 
 		var $shiftSelector = function(target)

@@ -13,6 +13,7 @@ npm install --save ui-selector
 * [With area](https://htmlpreview.github.io/?https://raw.githubusercontent.com/dobobaie/ui-selector/master/examples/limit-area.html)
 * [Without keys](https://htmlpreview.github.io/?https://raw.githubusercontent.com/dobobaie/ui-selector/master/examples/disable-keys.html)
 * [With list](https://htmlpreview.github.io/?https://raw.githubusercontent.com/dobobaie/ui-selector/master/examples/list-elements.html)
+* [Only ui-element](https://htmlpreview.github.io/?https://raw.githubusercontent.com/dobobaie/ui-selector/master/examples/only-ui-element.html)
 
 ![demo](https://raw.githubusercontent.com/dobobaie/ui-selector/master/examples/demo.gif)
 
@@ -56,6 +57,7 @@ Add `ui-element` as class or attribute on your items and call `uiSelector` funct
 					ctrl: true, // default true
 					shift: true, // default true
 				},
+				onlyElement: false, // defualt false | only ui-element can be select
 			}).on('selected', (target) => {
 				console.log('selected', target);
 			}).on('deselect', (target) => {
