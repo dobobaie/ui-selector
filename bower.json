@@ -1,0 +1,32 @@
+{
+  "name": "ui-selector",
+  "description": "Select items on your page with your mouse, click and keys event",
+  "main": "uiSelector.min.js",
+  "authors": [
+    "Dobobaie"
+  ],
+  "license": "ISC",
+  "keywords": [
+    "ui",
+    "selector",
+    "select",
+    "mouse",
+    "event",
+    "selector",
+    "click",
+    "drag",
+    "selected",
+    "elements",
+    "element",
+    "item",
+    "items"
+  ],
+  "homepage": "https://github.com/dobobaie/ui-selector",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

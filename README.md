@@ -7,6 +7,10 @@ Select items on your page with your mouse, click and keys event.
 npm install --save ui-selector
 
 ``` 
+``` bash
+bower install --save https://github.com/dobobaie/ui-selector.git
+
+``` 
 
 ## Demos
 * [Classic](https://htmlpreview.github.io/?https://raw.githubusercontent.com/dobobaie/ui-selector/master/examples/unlimit-area.html)
