@@ -19,6 +19,9 @@ var uiSelector = function(options)
 				_engine.elParent = document.body;
 			}
 
+			//
+			options.mouse = (typeof(options.mouse) === 'boolean' ? options.mouse : true);
+
 			_engine.el = document.createElement('div');
 			_engine.el.id = 'uiSelector';
 			_engine.el.className = 'ui-selector';
@@ -26,9 +29,14 @@ var uiSelector = function(options)
 			_engine.elParent.appendChild(_engine.el);
 
 			// Event mouse in el parent
-			_engine.elParent.addEventListener('mousedown', $mouseDown);
-			_engine.elParent.addEventListener('mousemove', $mouseMove);
-			_engine.elParent.addEventListener('mouseup', $mouseUp);
+			if (options.mouse == true) {
+				_engine.elParent.addEventListener('mousedown', $mouseDown);
+				_engine.elParent.addEventListener('mousemove', $mouseMove);
+				_engine.elParent.addEventListener('mouseup', $mouseUp);
+			} else {
+				_engine.elParent.addEventListener('click', $click);
+			}
+			
 			document.addEventListener('keydown', $keyDown);
 			document.addEventListener('keyup', $keyUp);
 		
@@ -87,6 +95,18 @@ var uiSelector = function(options)
 		{
 			_engine.mouseDown = false;
 			_engine.el.setAttribute('hidden', true);
+			return true;
+		}
+
+		var $click = function(e)
+		{
+			_engine.pos.x.x = e.clientX;
+			_engine.pos.x.y = e.clientY;
+			_engine.pos.y.x = e.clientX;
+			_engine.pos.y.y = e.clientY;
+			_engine.this.calculPosition();
+			_engine.this.getElements();
+			_engine.this.eventClick(e);
 			return true;
 		}
 
