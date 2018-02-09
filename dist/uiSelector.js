@@ -171,15 +171,27 @@ var uiSelector = function(options)
 		this.eventClick = function(e)
 		{
 			var target = null;
-			for (var i = 0; e.path[i] != undefined; i++) {
+			var nodes = (function(el) {
+				var path = [];
+				while (el) {
+					path.push(el);
+					if (el.tagName === 'HTML') {
+						path.push(document);
+						path.push(window);
+						return path;
+					}
+					el = el.parentElement;
+				}
+			})(e.target);
+			for (var i = 0; nodes[i] != undefined; i++) {
 				if (i == 1 && typeof(options) == 'object' && options.onlyElement === true) {
 					break ;
 				}
-				if (e.path[i].className == undefined) {
+				if (nodes[i].className == undefined) {
 					continue ;
 				}
-				if (e.path[i].className.indexOf('ui-element') != -1 || e.path[i].getAttribute('ui-element') != null) {
-					target = e.path[i];
+				if (nodes[i].className.indexOf('ui-element') != -1 || nodes[i].getAttribute('ui-element') != null) {
+					target = nodes[i];
 					break ;
 				}
 			}
