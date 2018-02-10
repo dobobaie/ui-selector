@@ -1,3 +1,7 @@
+if (typeof(require) === 'function') {
+	require('hammerjs');
+}
+
 var uiSelector = function(options)
 {
 	var $process = function()
@@ -29,13 +33,14 @@ var uiSelector = function(options)
 			_engine.elParent.appendChild(_engine.el);
 
 			// Event mouse in el parent
-			if (options.mouse == true) {
-				_engine.elParent.addEventListener('mousedown', $mouseDown);
-				_engine.elParent.addEventListener('mousemove', $mouseMove);
-				_engine.elParent.addEventListener('mouseup', $mouseUp);
-			} else {
-				_engine.elParent.addEventListener('click', $click);
-			}
+			_engine.hammer = new Hammer(_engine.elParent);
+			_engine.hammer.get('pinch').set({enable: true});
+			_engine.hammer.get('pan').set({threshold:5, direction: Hammer.DIRECTION_ALL});
+
+			_engine.hammer.on('panstart', $mouseDown);
+			_engine.elParent.addEventListener('mousemove', $mouseMove);
+			_engine.hammer.on('panend', $mouseUp);
+			_engine.hammer.on('tap', $click);
 			
 			document.addEventListener('keydown', $keyDown);
 			document.addEventListener('keyup', $keyUp);
@@ -66,33 +71,62 @@ var uiSelector = function(options)
 
 			_engine.mouseDown = true;
 			if (_engine.keys.shift == false && _engine.keys.ctrl == false) {
-				_engine.pos.x.x = e.clientX;
-				_engine.pos.x.y = e.clientY;
+				_engine.pos.x.x = (e.clientX === undefined ? e.center.x : e.clientX);
+				_engine.pos.x.y = (e.clientY === undefined ? e.center.y : e.clientY);
 				_engine.this.calculPosition();
-				_engine.el.removeAttribute('hidden');
+
+				var element = $findElement($getPath(e.target));
+				if (options.draggable === undefined || element.length === 0) {
+					_engine.el.removeAttribute('hidden');
+				}
 			}
+
 			_engine.this.getElements();
-			_engine.this.eventClick(e);
+			
+			var elements = Array.prototype.slice.call(document.getElementsByClassName('ui-selected'));
+			if (options.draggable === undefined || elements.length === 0) {
+				_engine.this.eventClick(e);
+			}
+
+			var dragmesh = document.getElementById('ui-dragmesh');
+			if (options.draggable !== undefined && elements.length !== 0 && dragmesh === null) {
+				_engine.this.dragObjects(elements);
+			}
 			return true;
 		}
 		
 		var $mouseMove = function(e)
 		{
-			_engine.mouseMoveTry += 1;
-			if (_engine.mouseDown == true && _engine.mouseMoveTry == 1) {
+			if (_engine.mouseDown == false) {
 				return ;
 			}
 
-			_engine.mouseMoveTry = 0;
 			_engine.pos.y.x = e.clientX;
 			_engine.pos.y.y = e.clientY;
 			_engine.this.calculPosition();
-			_engine.this.detectElements();
+
+			var dragmesh = document.getElementById('ui-dragmesh');
+			if (dragmesh === null) {
+				_engine.el.removeAttribute('hidden');
+				_engine.this.detectElements();
+			} else {
+				_engine.el.setAttribute('hidden', true);
+			}
+			
+			if (dragmesh !== null) {
+				dragmesh.style.top = _engine.pos.y.y + 'px';
+				dragmesh.style.left = _engine.pos.y.x + 'px';
+			}
 			return true;
 		}
 		
 		var $mouseUp = function(e)
 		{
+			var dragmesh = document.getElementById('ui-dragmesh');
+			if (dragmesh !== null) {
+				dragmesh.remove();
+			}
+
 			_engine.mouseDown = false;
 			_engine.el.setAttribute('hidden', true);
 			return true;
@@ -125,6 +159,20 @@ var uiSelector = function(options)
 			return true;
 		}
 
+		this.dragObjects = function(elements)
+		{
+			var dragmesh = document.createElement('div');
+			dragmesh.id = 'ui-dragmesh';
+			dragmesh.style.position = 'absolute';
+			dragmesh.style.top = _engine.pos.y.y + 'px';
+			dragmesh.style.left = _engine.pos.y.x + 'px';
+			dragmesh.style.opacity = 0.4;
+			elements.map(function(elem) {
+				dragmesh.appendChild(elem.cloneNode(true));
+			});
+			document.body.appendChild(dragmesh);
+		}
+
 		this.calculPosition = function()
 		{
 			_engine.pos.left = Math.min(_engine.pos.x.x, _engine.pos.y.x);
@@ -137,6 +185,7 @@ var uiSelector = function(options)
 			_engine.el.style.top = _engine.pos.top + 'px';
 			_engine.el.style.width = (_engine.pos.right - _engine.pos.left) + 'px';
 			_engine.el.style.height = (_engine.pos.bottom - _engine.pos.top) + 'px';
+			return _engine.pos;
 		}
 
 		this.getElements = function()
@@ -144,45 +193,66 @@ var uiSelector = function(options)
 			var elements = Array.prototype.slice.call(document.getElementsByClassName('ui-element'));
 			elements = elements.concat(Array.prototype.slice.call(document.querySelectorAll('*[ui-element]')));
 			_engine.elements = elements;
+			return _engine.elements;
 		}
 
-		this.detectElements = function()
+		this.detectElements = function(callEvent)
 		{
-			if (_engine.el.hidden == undefined || _engine.el.hidden === true) {
-				return ;
+			callEvent = (typeof(callEvent) !== 'boolean' || callEvent === true ? true : false);
+			if (callEvent === false && (_engine.el.hidden == undefined || _engine.el.hidden === true)) {
+				return null;
 			}
 			
+			var elements = [];
 			for (var index in _engine.elements) {
 				var positions = _engine.elements[index].getBoundingClientRect();
 				if ($isInSelector(positions) == true) {
 					if (_engine.elements[index].className.indexOf('ui-selected') == -1) {
-						_engine.elements[index].classList.add('ui-selected');
-						$execCallback('selected', _engine.elements[index]);
+						elements.push(_engine.elements[index]);
+						if (callEvent === true) {
+							_engine.elements[index].classList.add('ui-selected');
+							$execCallback('selected', _engine.elements[index]);
+						}
 					}
 				} else {
 					if (_engine.elements[index].className.indexOf('ui-selected') != -1) {
-						_engine.elements[index].classList.remove('ui-selected');
-						$execCallback('deselect', _engine.elements[index]);
+						if (callEvent === true) {
+							_engine.elements[index].classList.remove('ui-selected');
+							$execCallback('deselect', _engine.elements[index]);
+						}
 					}
 				}
 			}
+			return elements;
+		}
+
+		var $getPath = function(el)
+		{
+			var path = [];
+			while (el)
+			{
+				path.push(el);
+				if (el.tagName === 'HTML') {
+					path.push(document);
+					path.push(window);
+					return path;
+				}
+				el = el.parentElement;
+			}
+			return path;
+		}
+
+		var $findElement = function(arr)
+		{
+			return arr.filter(function(elem) {
+				return elem.className !== undefined && elem.className.indexOf('ui-element') !== -1;
+			});
 		}
 
 		this.eventClick = function(e)
 		{
 			var target = null;
-			var nodes = (function(el) {
-				var path = [];
-				while (el) {
-					path.push(el);
-					if (el.tagName === 'HTML') {
-						path.push(document);
-						path.push(window);
-						return path;
-					}
-					el = el.parentElement;
-				}
-			})(e.target);
+			var nodes = $getPath(e.target);
 			for (var i = 0; nodes[i] != undefined; i++) {
 				if (i == 1 && typeof(options) == 'object' && options.onlyElement === true) {
 					break ;
@@ -190,7 +260,7 @@ var uiSelector = function(options)
 				if (nodes[i].className == undefined) {
 					continue ;
 				}
-				if (nodes[i].className.indexOf('ui-element') != -1 || nodes[i].getAttribute('ui-element') != null) {
+				if (nodes[i].className.indexOf('ui-element') !== -1) {
 					target = nodes[i];
 					break ;
 				}
@@ -268,12 +338,12 @@ var uiSelector = function(options)
 
 		var _engine = {
 			this: this,
+			hammer: null,
 			elParent: null,
 			el: null,
 			elements: [],
 			lastTarget: null,
 			mouseDown: false,
-			mouseMoveTry: 0,
 			keys: {
 				ctrl: false,
 				shift: false,

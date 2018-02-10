@@ -30,5 +30,8 @@
   "bugs": {
     "url": "https://github.com/dobobaie/ui-selector/issues"
   },
-  "homepage": "https://github.com/dobobaie/ui-selector#readme"
+  "homepage": "https://github.com/dobobaie/ui-selector#readme",
+  "dependencies": {
+    "hammerjs": "^2.0.8"
+  }
 }

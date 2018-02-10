@@ -8,6 +8,10 @@
 				padding: 0;
 				height: 100%;
 			}
+			#square
+			{
+				height: 100%;
+			}
 			div.ui-element, div[ui-element]
 			{
 				background: #DDD;
@@ -20,26 +24,27 @@
 		
 		<div id="square">
 			<div class="ui-element" style="width: 200px; height: 200px; float: left; margin: 35px;">
-				<div style="background: blue;margin: 50px auto;width: 100px;height: 100px;"></div>
+				<div style="background: blue;margin: 50px auto;width: 100px;height: 70px;color: #FFF;font-size: 2em;text-align: center;padding-top: 30px;">1</div>
 			</div>
 			<div class="ui-element" style="width: 200px; height: 200px; float: left; margin: 35px;">
-				<div style="background: blue;margin: 50px auto;width: 100px;height: 100px;"></div>
+				<div style="background: blue;margin: 50px auto;width: 100px;height: 70px;color: #FFF;font-size: 2em;text-align: center;padding-top: 30px;">2</div>
 			</div>
 			<div class="ui-element" style="width: 200px; height: 200px; float: left; margin: 35px;">
-				<div style="background: blue;margin: 50px auto;width: 100px;height: 100px;"></div>
+				<div style="background: blue;margin: 50px auto;width: 100px;height: 70px;color: #FFF;font-size: 2em;text-align: center;padding-top: 30px;">3</div>
 			</div>
-			<div ui-element style="width: 200px; height: 200px; float: left; margin: 35px;">
-				<div style="background: blue;margin: 50px auto;width: 100px;height: 100px;"></div>
+			<div class="ui-element" style="width: 200px; height: 200px; float: left; margin: 35px;">
+				<div style="background: blue;margin: 50px auto;width: 100px;height: 70px;color: #FFF;font-size: 2em;text-align: center;padding-top: 30px;">4</div>
 			</div>
-			<div ui-element style="width: 200px; height: 200px; float: left; margin: 35px;">
-				<div style="background: blue;margin: 50px auto;width: 100px;height: 100px;"></div>
+			<div class="ui-element" style="width: 200px; height: 200px; float: left; margin: 35px;">
+				<div style="background: blue;margin: 50px auto;width: 100px;height: 70px;color: #FFF;font-size: 2em;text-align: center;padding-top: 30px;">5</div>
 			</div>
-			<div ui-element style="width: 200px; height: 200px; float: left; margin: 35px;">
-				<div style="background: blue;margin: 50px auto;width: 100px;height: 100px;"></div>
+			<div class="ui-element" style="width: 200px; height: 200px; float: left; margin: 35px;">
+				<div style="background: blue;margin: 50px auto;width: 100px;height: 70px;color: #FFF;font-size: 2em;text-align: center;padding-top: 30px;">6</div>
 			</div>
 			<div style="clear: both"></div>
 		</div>
 
+		<script src="http://hammerjs.github.io/dist/hammer.min.js"></script>
 		<script type="text/javascript" src="../dist/uiSelector.js"></script>
 		<script>
 			// uiSelector() // create instance in body
@@ -53,6 +58,7 @@
 					shift: true, // default true
 				},
 				onlyElement: false, // only ui-element can be select
+				draggable: '#square',
 			}).on('selected', (target) => {
 				console.log('selected', target);
 			}).on('deselect', (target) => {
