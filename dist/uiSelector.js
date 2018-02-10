@@ -59,6 +59,13 @@ var uiSelector = function(options)
 				case 'deselect':
 					_engine.callback.deselect.push(callback);
 				break;
+				case 'dragstart':
+					_engine.callback.dragstart.push(callback);
+				break;
+				case 'dragcancelled':
+					_engine.callback.dragcancelled.push(callback);
+				break;
+
 			}
 			return {on: _engine.this.on};
 		}
@@ -124,6 +131,14 @@ var uiSelector = function(options)
 		{
 			var dragmesh = document.getElementById('ui-dragmesh');
 			if (dragmesh !== null) {
+				var elements = Array.prototype.slice.call(dragmesh.childNodes);
+				elements.map(function(elem) {
+					var copyId = elem.getAttribute('ui-id-draggable');
+					elem.remove();
+					var findElem = _engine.elParent.querySelector('*[ui-id-draggable="' + copyId + '"]');
+					findElem.removeAttribute('ui-id-draggable');
+					$execCallback('dragcancelled', findElem);
+				});
 				dragmesh.remove();
 			}
 
@@ -167,8 +182,12 @@ var uiSelector = function(options)
 			dragmesh.style.top = _engine.pos.y.y + 'px';
 			dragmesh.style.left = _engine.pos.y.x + 'px';
 			dragmesh.style.opacity = 0.4;
-			elements.map(function(elem) {
-				dragmesh.appendChild(elem.cloneNode(true));
+			elements.map(function(elem, index) {
+				var date = new Date();
+				elem.setAttribute('ui-id-draggable', date.getTime() + '-' + index);
+				var elemCloned = elem.cloneNode(true);
+				dragmesh.appendChild(elemCloned);
+				$execCallback('dragstart', elemCloned);
 			});
 			document.body.appendChild(dragmesh);
 		}
@@ -190,9 +209,7 @@ var uiSelector = function(options)
 
 		this.getElements = function()
 		{
-			var elements = Array.prototype.slice.call(document.getElementsByClassName('ui-element'));
-			elements = elements.concat(Array.prototype.slice.call(document.querySelectorAll('*[ui-element]')));
-			_engine.elements = elements;
+			_engine.elements = Array.prototype.slice.call(document.getElementsByClassName('ui-element'));
 			return _engine.elements;
 		}
 
@@ -367,6 +384,8 @@ var uiSelector = function(options)
 			callback: {
 				selected: [],
 				deselect: [],
+				dragstart: [],
+				dragcancelled: [],
 			},
 		}
 	}
