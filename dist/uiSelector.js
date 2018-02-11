@@ -362,6 +362,9 @@ var uiSelector = function(options)
 			
 			var elements = [];
 			for (var index in _engine.elements) {
+				if (_engine.elements[index].className.indexOf('ui-element') === -1) {
+					continue ;
+				}
 				var positions = _engine.elements[index].getBoundingClientRect();
 				if ($isInSelector(positions) == true) {
 					if (_engine.elements[index].className.indexOf('ui-selected') == -1) {
@@ -432,7 +435,7 @@ var uiSelector = function(options)
 				}
 			}
 
-			if (target == null) {
+			if (target == null || target.className.indexOf('ui-element') === -1) {
 				return ;
 			}
 
@@ -461,7 +464,7 @@ var uiSelector = function(options)
 			var isTarget = (elem == null ? false : true);
 			elem = (elem == null ? _engine.lastTarget : elem);
 			while ((elem = elem.nextSibling) != null) {
-				if (elem.style == undefined) {
+				if (elem.style === undefined || elem.className.indexOf('ui-element') === -1) {
 					continue ;
 				}
 				if (elem.className.indexOf('ui-selected') == -1) {
