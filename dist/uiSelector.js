@@ -164,9 +164,23 @@ var uiSelector = function(options)
 					elem.remove();
 					var findElem = _engine.elParent.querySelector('*[ui-id-draggable="' + copyId + '"]');
 					findElem.removeAttribute('ui-id-draggable');
-					$execCallback('dragcancelled', findElem);
+					if (_engine.drag.isOver === false) {
+						$execCallback('dragcancelled', findElem);
+					}
 				});
 				dragmesh.remove();
+			}
+
+			var overElement = document.getElementById('ui-dragover');
+			if (overElement !== null) {
+				if (_engine.drag.isOver === true) {
+					var selectedElements = Array.prototype.slice.call(document.querySelectorAll('.ui-selected'));
+					selectedElements.map(function(elem) {
+						overElement.parentNode.insertBefore(elem, overElement);
+						$execCallback('drop', elem);
+					});
+				}
+				overElement.remove();
 			}
 
 			_engine.mouseDown = false;
@@ -203,9 +217,16 @@ var uiSelector = function(options)
 
 		this.detectDragOver = function(e)
 		{
+			// Get current over
+			var dragOverElement = document.getElementById('ui-dragover');
+			if (dragOverElement !== null) {
+				dragOverElement.remove();
+			}
+
 			//
 			var dragmesh = document.getElementById('ui-dragmesh');
 			if (dragmesh === null) {
+				_engine.drag.isOver = false;
 				return ;
 			}
 
@@ -217,6 +238,7 @@ var uiSelector = function(options)
 				}).shift();
 			});
 			if (element.length === 0) {
+				_engine.drag.isOver = false;
 				return ;
 			}
 
@@ -230,7 +252,7 @@ var uiSelector = function(options)
 			var lastElem = null;
 			var lastRect = null;
 			elements.map(function(element) {
-				if (element.getBoundingClientRect === undefined || element.className.indexOf('ui-element') === -1) {
+				if (element.getBoundingClientRect === undefined || element.className.indexOf('ui-element') === -1 || element.className.indexOf('ui-selected') !== -1) {
 					return ;
 				}
 
@@ -257,16 +279,12 @@ var uiSelector = function(options)
 				lastLeftRect = lastRect;
 			}
 
-			// Get current over
-			var dragOverElement = document.getElementById('ui-dragover');
-			if (dragOverElement !== null) {
-				dragOverElement.remove();
-			}
-
 			// If element can not be drop
 			if (lastLeftElem !== null && lastLeftElem.parentNode === null) {
+				_engine.drag.isOver = false;
 				return ;
 			}
+			_engine.drag.isOver = true;
 
 			// If element can be drop
 			var overElement = dragmesh.childNodes[0].cloneNode(true);
@@ -483,6 +501,9 @@ var uiSelector = function(options)
 			elements: [],
 			lastTarget: null,
 			mouseDown: false,
+			drag: {
+				isOver: false,
+			},
 			keys: {
 				ctrl: false,
 				shift: false,
