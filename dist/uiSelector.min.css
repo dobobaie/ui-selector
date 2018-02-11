@@ -1,1 +1,1 @@
-.ui-selector{position:absolute;background-color:rgba(170,204,238,0.7);border:1px solid rgba(51,153,255,1)}div.ui-selected,li.ui-selected,.ui-selected{background:rgba(205,232,255,0.7);border:1px solid rgba(51,153,255,1)}
+.ui-selector{position:absolute;background-color:rgba(170,204,238,0.7);border:1px solid rgba(51,153,255,1)}div.ui-selected,li.ui-selected,.ui-selected,#ui-dragover{background:rgba(205,232,255,0.7);border:1px solid rgba(51,153,255,1)}#ui-dragover{background:#fffdc1}

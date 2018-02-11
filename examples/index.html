@@ -63,10 +63,14 @@
 				console.log('selected', target);
 			}).on('deselect', (target) => {
 				console.log('deselect', target);
-			}).on('dragstart', (target) => {
-				console.log('dragstart', target);
+			}).on('drag', (target) => {
+				console.log('drag', target);
 			}).on('dragcancelled', (target) => {
 				console.log('dragcancelled', target);
+			}).on('dragover', (target, total) => {
+				console.log('dragover', target, total);
+			}).on('drop', (target) => {
+				console.log('drop', target);
 			});
 		</script>
 	</body>

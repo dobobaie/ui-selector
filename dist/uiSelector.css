@@ -5,8 +5,13 @@
 	border: 1px solid rgba(51, 153, 255, 1);
 }
 
-div.ui-selected, li.ui-selected, .ui-selected
+div.ui-selected, li.ui-selected, .ui-selected, #ui-dragover
 {
 	background: rgba(205, 232, 255, 0.7);
 	border: 1px solid rgba(51, 153, 255, 1); 
+}
+
+#ui-dragover
+{
+	background: #fffdc1;
 }

@@ -9,19 +9,7 @@ var uiSelector = function(options)
 		this.init = function()
 		{
 			// Get element selector
-			if (typeof(options) == 'string') {
-				_engine.elParent = document.querySelector(options);
-			} else if (typeof(options) == 'object' && options.el != undefined) {
-				if (typeof(options.el) == 'string') {
-					_engine.elParent = document.querySelector(options.el);
-				} else if (typeof(options.el) == 'object') {
-					_engine.elParent = options.el;
-				} else {
-					_engine.elParent = options;
-				}
-			} else {
-				_engine.elParent = document.body;
-			}
+			_engine.elParent = $getElement(options);
 
 			//
 			options.mouse = (typeof(options.mouse) === 'boolean' ? options.mouse : true);
@@ -49,6 +37,38 @@ var uiSelector = function(options)
 			return {on: _engine.this.on};
 		}
 
+		var $getElement = function(options)
+		{
+			if (typeof(options) == 'string') {
+				return document.querySelector(options);
+			} else if (typeof(options) == 'object' && options.el != undefined) {
+				if (typeof(options.el) == 'string') {
+					return document.querySelector(options.el);
+				} else if (typeof(options.el) == 'object') {
+					return options.el;
+				} else {
+					return options;
+				}
+			}
+			return document.body;
+		}
+
+		var $getElements = function(options)
+		{
+			if (typeof(options) == 'string') {
+				return document.querySelectorAll(options);
+			} else if (typeof(options) == 'object' && options.el != undefined) {
+				if (typeof(options.el) == 'string') {
+					return document.querySelectorAll(options.el);
+				} else if (typeof(options.el) == 'object') {
+					return (Array.isArray(options.el) ? options.el : [options.el]);
+				} else {
+					return (Array.isArray(options) ? options : [options]);
+				}
+			}
+			return [document.body];
+		}
+
 		this.on = function(type, callback)
 		{
 			switch (type)
@@ -59,11 +79,17 @@ var uiSelector = function(options)
 				case 'deselect':
 					_engine.callback.deselect.push(callback);
 				break;
-				case 'dragstart':
-					_engine.callback.dragstart.push(callback);
+				case 'drag':
+					_engine.callback.drag.push(callback);
 				break;
 				case 'dragcancelled':
 					_engine.callback.dragcancelled.push(callback);
+				break;
+				case 'dragover':
+					_engine.callback.dragover.push(callback);
+				break;
+				case 'drop':
+					_engine.callback.drop.push(callback);
 				break;
 
 			}
@@ -123,6 +149,7 @@ var uiSelector = function(options)
 			if (dragmesh !== null) {
 				dragmesh.style.top = _engine.pos.y.y + 'px';
 				dragmesh.style.left = _engine.pos.y.x + 'px';
+				_engine.this.detectDragOver(e);
 			}
 			return true;
 		}
@@ -174,6 +201,101 @@ var uiSelector = function(options)
 			return true;
 		}
 
+		this.detectDragOver = function(e)
+		{
+			//
+			var dragmesh = document.getElementById('ui-dragmesh');
+			if (dragmesh === null) {
+				return ;
+			}
+
+			// Get areas who element can be drop
+			var areas = (Array.isArray(options.draggable) === true ? options.draggable : [options.draggable]);
+			var element = areas.filter(function(element) {
+				return Array.prototype.slice.call($getElements(element)).filter(function(element) {
+					return element === e.target;	
+				}).shift();
+			});
+			if (element.length === 0) {
+				return ;
+			}
+
+			// Check the area of drop
+			var elements = Array.prototype.slice.call(e.target.childNodes);
+			var lastLeftRect = {
+				left: e.clientX,
+				top: e.clientY,
+			};
+			var lastLeftElem = null;
+			var lastElem = null;
+			var lastRect = null;
+			elements.map(function(element) {
+				if (element.getBoundingClientRect === undefined || element.className.indexOf('ui-element') === -1) {
+					return ;
+				}
+
+				var rect = element.getBoundingClientRect();
+				
+				if (lastLeftElem === null && rect.left < lastLeftRect.left && rect.top <= e.clientY && rect.bottom >= e.clientY) {
+					lastLeftElem = element;
+					lastLeftRect =  rect;
+					return ;
+				}
+			
+				if (rect.left > lastLeftRect.left && rect.left < e.clientX && rect.top <= e.clientY && rect.bottom >= e.clientY) {
+					lastLeftElem = element;
+					lastLeftRect =  rect;
+				}
+
+				lastElem = element;
+				lastRect = rect;
+			});
+
+			// After all elements
+			if (lastLeftElem === null && lastElem !== null && lastRect.bottom < e.clientY) {
+				lastLeftElem = lastElem;
+				lastLeftRect = lastRect;
+			}
+
+			// Get current over
+			var dragOverElement = document.getElementById('ui-dragover');
+			if (dragOverElement !== null) {
+				dragOverElement.remove();
+			}
+
+			// If element can not be drop
+			if (lastLeftElem !== null && lastLeftElem.parentNode === null) {
+				return ;
+			}
+
+			// If element can be drop
+			var overElement = dragmesh.childNodes[0].cloneNode(true);
+			overElement.id = 'ui-dragover';
+			overElement.classList.remove('ui-selected');
+			if (lastLeftElem === null) {
+				e.target.insertBefore(overElement, e.target.childNodes[0]);
+			} else {
+				lastLeftElem.parentNode.insertBefore(overElement, lastLeftElem.nextSibling);
+			}
+			$execCallback('dragover', overElement, dragmesh.childNodes.length);
+		}
+
+		var $isInDrag = function()
+		{
+			var dragmesh = document.getElementById('ui-dragmesh');
+			if (dragmesh === null) {
+				return false;
+			}
+
+			var areas = (Array.isArray(options.draggable) === true ? options.draggable : [options.draggable]);
+			var element = areas.filter(function(element) {
+				return Array.prototype.slice.call($getElements(element)).filter(function(element) {
+					return element === e.target;	
+				}).shift();
+			});
+			return element;
+		}
+
 		this.dragObjects = function(elements)
 		{
 			var dragmesh = document.createElement('div');
@@ -187,7 +309,7 @@ var uiSelector = function(options)
 				elem.setAttribute('ui-id-draggable', date.getTime() + '-' + index);
 				var elemCloned = elem.cloneNode(true);
 				dragmesh.appendChild(elemCloned);
-				$execCallback('dragstart', elemCloned);
+				$execCallback('drag', elemCloned);
 			});
 			document.body.appendChild(dragmesh);
 		}
@@ -343,13 +465,13 @@ var uiSelector = function(options)
 			return false;
 		}
 
-		var $execCallback = function(type, data)
+		var $execCallback = function(type, data, otherData)
 		{
 			for (var index in _engine.callback[type]) {
 				if (typeof(_engine.callback[type][index]) != 'function') {
 					continue ;
 				}
-				_engine.callback[type][index](data);
+				_engine.callback[type][index](data, otherData);
 			}
 		}
 
@@ -384,8 +506,10 @@ var uiSelector = function(options)
 			callback: {
 				selected: [],
 				deselect: [],
-				dragstart: [],
+				drag: [],
 				dragcancelled: [],
+				dragover: [],
+				drop: [],
 			},
 		}
 	}
