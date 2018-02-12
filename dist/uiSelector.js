@@ -13,6 +13,7 @@ var uiSelector = function(options)
 
 			//
 			options.mouse = (typeof(options.mouse) === 'boolean' ? options.mouse : true);
+			options.absolute = (typeof(options.absolute) === 'boolean' ? options.absolute : false);
 
 			_engine.el = document.createElement('div');
 			_engine.el.id = 'uiSelector';
@@ -98,6 +99,7 @@ var uiSelector = function(options)
 
 		var $mouseDown = function(e)
 		{
+			console.log('tutu');
 			if (_engine.mouseDown == true) {
 				return ;
 			}
@@ -109,7 +111,7 @@ var uiSelector = function(options)
 				_engine.this.calculPosition();
 
 				var element = $findElement($getPath(e.target));
-				if (options.draggable === undefined || element.length === 0) {
+				if ((options.absolute === false && options.draggable === undefined) || element.length === 0) {
 					_engine.el.removeAttribute('hidden');
 				}
 			}
@@ -125,11 +127,19 @@ var uiSelector = function(options)
 			if (options.draggable !== undefined && elements.length !== 0 && dragmesh === null) {
 				_engine.this.dragObjects(elements);
 			}
+
+			if (elements.length !== 0 && dragmesh === null && options.absolute === true) {
+				elements.map(function(elem) {
+					elem.style.position = 'absolute';
+				});
+				_engine.absoluteElements = elements;
+			}
 			return true;
 		}
 		
 		var $mouseMove = function(e)
 		{
+			console.log('toto');
 			if (_engine.mouseDown == false) {
 				return ;
 			}
@@ -139,7 +149,9 @@ var uiSelector = function(options)
 			_engine.this.calculPosition();
 
 			var dragmesh = document.getElementById('ui-dragmesh');
-			if (dragmesh === null) {
+			if (_engine.absoluteElements !== null) {
+				_engine.this.moveElements(e);
+			} else if (dragmesh === null) {
 				_engine.el.removeAttribute('hidden');
 				_engine.this.detectElements();
 			} else {
@@ -183,6 +195,7 @@ var uiSelector = function(options)
 				overElement.remove();
 			}
 
+			_engine.absoluteElements = null;
 			_engine.mouseDown = false;
 			_engine.el.setAttribute('hidden', true);
 			return true;
@@ -215,6 +228,24 @@ var uiSelector = function(options)
 			return true;
 		}
 
+		this.moveElements = function(e)
+		{
+			var lastPos = null;
+			_engine.absoluteElements.map(function(elem) {
+				var rect = elem.getBoundingClientRect();
+				var left = e.layerX;
+				var top = e.layerY;
+				if (lastPos !== null) {
+					left += rect.left - lastPos.left;
+					top += rect.top - lastPos.top; 
+				}
+				elem.style.left = left + 'px';
+				elem.style.top = top + 'px';
+				lastPos = rect;
+			});
+			return _engine.absoluteElements;
+		}
+
 		this.detectDragOver = function(e)
 		{
 			// Get current over
@@ -225,7 +256,7 @@ var uiSelector = function(options)
 
 			//
 			var dragmesh = document.getElementById('ui-dragmesh');
-			if (dragmesh === null) {
+			if (dragmesh === null || dragmesh.childNodes[0] === undefined) {
 				_engine.drag.isOver = false;
 				return ;
 			}
@@ -504,6 +535,7 @@ var uiSelector = function(options)
 			elements: [],
 			lastTarget: null,
 			mouseDown: false,
+			absoluteElements: null,
 			drag: {
 				isOver: false,
 			},
